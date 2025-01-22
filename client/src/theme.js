@@ -1,31 +1,41 @@
-// color design tokens export
-export const colorTokens = {
+export const colorTokens = { 
   grey: {
     0: "#FFFFFF",
-    10: "#F6F6F6",
+    10: "#F9F9F9",  // Slightly lighter grey for a fresh background effect
     50: "#F0F0F0",
-    100: "#E0E0E0",
-    200: "#C2C2C2",
-    300: "#A3A3A3",
-    400: "#858585",
-    500: "#666666",
-    600: "#4D4D4D",
-    700: "#333333",
-    800: "#1A1A1A",
-    900: "#0A0A0A",
-    1000: "#000000",
+    100: "#D1D1D1",  // More distinct medium grey
+    200: "#A0A0A0",  // Softened darker grey
+    300: "#707070",  // Darker grey for subtle emphasis
+    400: "#505050",  // Deep grey for clearer contrast
+    500: "#333333",  // More refined dark grey for text
+    600: "#1F1F1F",  // Darker for depth and focus
+    700: "#141414",  // Strong dark tone for strong UI elements
+    800: "#0D0D0D",  // Strong emphasis on background elements
+    900: "#000000",  // True black for deep contrasts
   },
   primary: {
-    50: "#E6FBFF",
-    100: "#CCF7FE",
-    200: "#99EEFD",
-    300: "#66E6FC",
-    400: "#33DDFB",
-    500: "#00D5FA",
-    600: "#00A0BC",
-    700: "#006B7D",
-    800: "#00353F",
-    900: "#001519",
+    50: "#E6F9FF",  // Slightly lighter blue, clean touch
+    100: "#B3E6FF",  // Light and airy
+    200: "#80D1FF",  // Soft blue with more presence
+    300: "#4DBBFF",  // Cool blue
+    400: "#33A1D1",  // Muted blue for primary buttons
+    500: "#008C9E",  // Stronger primary blue
+    600: "#007384",  // Darker shade of primary blue
+    700: "#005F68",  // Muted dark blue for accents
+    800: "#003F4E",  // Deep blue for emphasis
+    900: "#001F2A",  // Dark navy blue, very deep
+  },
+  secondary: {
+    50: "#FFF1D0",  // Light beige-yellow for secondary accents
+    100: "#FFE59E",  // Soft yellow for lighter contrasts
+    200: "#FFD266",  // Muted yellow for more impactful UI elements
+    300: "#FFBF2E",  // Vibrant yellow for notifications or badges
+    400: "#FF9900",  // Bold orange-yellow for action buttons
+    500: "#FF7300",  // Strong orange for call-to-action buttons
+    600: "#E65D00",  // Dark orange for secondary actions
+    700: "#B34900",  // Rich orange for deeper tones
+    800: "#803500",  // Very dark orange for contrasts
+    900: "#4C1A00",  // Deep burnt orange, for emphasis
   },
 };
 
@@ -36,11 +46,16 @@ export const themeSettings = (mode) => {
       mode: mode,
       ...(mode === "dark"
         ? {
-            // palette values for dark mode
+            // Dark mode color adjustments
             primary: {
-              dark: colorTokens.primary[200],
+              dark: colorTokens.primary[300],
               main: colorTokens.primary[500],
-              light: colorTokens.primary[800],
+              light: colorTokens.primary[700],
+            },
+            secondary: {
+              dark: colorTokens.secondary[600],
+              main: colorTokens.secondary[500],
+              light: colorTokens.secondary[300],
             },
             neutral: {
               dark: colorTokens.grey[100],
@@ -50,16 +65,21 @@ export const themeSettings = (mode) => {
               light: colorTokens.grey[700],
             },
             background: {
-              default: colorTokens.grey[900],
+              default: colorTokens.grey[900], // Keep this as pure black for dark mode
               alt: colorTokens.grey[800],
             },
           }
         : {
-            // palette values for light mode
+            // Light mode color adjustments
             primary: {
               dark: colorTokens.primary[700],
               main: colorTokens.primary[500],
               light: colorTokens.primary[50],
+            },
+            secondary: {
+              dark: colorTokens.secondary[600],
+              main: colorTokens.secondary[500],
+              light: colorTokens.secondary[100],
             },
             neutral: {
               dark: colorTokens.grey[700],
@@ -69,7 +89,7 @@ export const themeSettings = (mode) => {
               light: colorTokens.grey[50],
             },
             background: {
-              default: colorTokens.grey[10],
+              default: colorTokens.grey[10], // Lighter background for better visibility
               alt: colorTokens.grey[0],
             },
           }),

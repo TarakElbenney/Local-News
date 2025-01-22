@@ -32,7 +32,12 @@ const UserSchema = new mongoose.Schema(
     friends: {
       type: Array,
       default: [],
-    },role: {
+    },
+    themes: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Theme",
+    }],
+    role: {
       type: String,
       enum: ["admin", "writer", "user"],
       default: "user",

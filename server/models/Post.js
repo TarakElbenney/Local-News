@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 const postSchema = mongoose.Schema(
   {
     userId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId, // Change to ObjectId to reference the User model
+      ref: "User", // Specify the ref to User model
       required: true,
     },
     firstName: {
@@ -22,6 +23,7 @@ const postSchema = mongoose.Schema(
       type: Map,
       of: Boolean,
     },
+    themes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Theme" }], // Change to ObjectId to reference Theme model
     comments: {
       type: Array,
       default: [],

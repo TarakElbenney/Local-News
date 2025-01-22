@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -30,6 +30,8 @@ const MyPostWidget = ({ picturePath }) => {
   const [isImage, setIsImage] = useState(false);
   const [image, setImage] = useState(null);
   const [post, setPost] = useState("");
+  const [selectedThemes, setSelectedThemes] = useState([]);
+  const [themes, setThemes] = useState([]); // To store available themes from the database
   const { palette } = useTheme();
   const { _id, role } = useSelector((state) => state.user); // Get user ID and role
   const token = useSelector((state) => state.token);
@@ -37,20 +39,39 @@ const MyPostWidget = ({ picturePath }) => {
   const mediumMain = palette.neutral.mediumMain;
   const medium = palette.neutral.medium;
 
+  // Fetch themes from the database on component mount
+  useEffect(() => {
+    const fetchThemes = async () => {
+      const response = await fetch("http://localhost:3001/themes", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      setThemes(data); // Set themes to the state
+    };
+
+    fetchThemes();
+  }, [token]);
+
   const handlePost = async () => {
     if (role !== "admin" && role !== "writer") {
       alert("You do not have permission to create a post.");
       return;
     }
-
+  
     const formData = new FormData();
     formData.append("userId", _id);
     formData.append("description", post);
+    
+    // Send themes one by one instead of an array
+    selectedThemes.forEach((theme) => {
+      formData.append("themes[]", theme); // 'themes[]' will send each theme individually
+    });
+  
     if (image) {
       formData.append("picture", image);
       formData.append("picturePath", image.name);
     }
-
+  
     const response = await fetch(`http://localhost:3001/posts`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
@@ -60,6 +81,15 @@ const MyPostWidget = ({ picturePath }) => {
     dispatch(setPosts({ posts }));
     setImage(null);
     setPost("");
+    setSelectedThemes([]); // Reset the theme selection after posting
+  };
+
+  const handleThemeChange = (theme) => {
+    setSelectedThemes((prev) =>
+      prev.includes(theme)
+        ? prev.filter((t) => t !== theme)
+        : [...prev, theme]
+    );
   };
 
   return (
@@ -78,6 +108,47 @@ const MyPostWidget = ({ picturePath }) => {
           }}
         />
       </FlexBetween>
+
+      {/* Theme Selection */}
+      <Box sx={{ width: "100%", marginTop: "1rem" }}>
+        <Typography variant="h6">Select Themes</Typography>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(80px, 1fr))",
+            gap: "0.5rem",
+            mt: "1rem",
+          }}
+        >
+          {themes.map((theme) => (
+            <Box
+              key={theme._id} // Use unique ID from theme object
+              onClick={() => handleThemeChange(theme._id)} // Store the theme's ID
+              sx={{
+                padding: "0.5rem",
+                borderRadius: "0.5rem",
+                textAlign: "center",
+                fontSize: "0.875rem",
+                fontWeight: "bold",
+                cursor: "pointer",
+                backgroundColor: selectedThemes.includes(theme._id)
+                  ? "primary.main"
+                  : "grey.200",
+                color: selectedThemes.includes(theme._id) ? "white" : "text.primary",
+                transition: "background-color 0.3s, color 0.3s",
+                "&:hover": {
+                  backgroundColor: selectedThemes.includes(theme._id)
+                    ? "primary.dark"
+                    : "grey.300",
+                },
+              }}
+            >
+              {theme.name}
+            </Box>
+          ))}
+        </Box>
+      </Box>
+
       {isImage && (
         <Box
           border={`1px solid ${medium}`}

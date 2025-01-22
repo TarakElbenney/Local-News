@@ -5,6 +5,7 @@ const initialState = {
   user: null,
   token: null,
   posts: [],
+  themes: [], 
 };
 
 export const authSlice = createSlice({
@@ -39,9 +40,20 @@ export const authSlice = createSlice({
       });
       state.posts = updatedPosts;
     },
+    setThemes: (state, action) => {
+      state.themes = action.payload.themes; // Update the themes state
+    },
   },
 });
 
-export const { setMode, setLogin, setLogout, setFriends, setPosts, setPost } =
-  authSlice.actions;
+export const {
+  setMode,
+  setLogin,
+  setLogout,
+  setFriends,
+  setPosts,
+  setPost,
+  setThemes, 
+} = authSlice.actions;
+
 export default authSlice.reducer;

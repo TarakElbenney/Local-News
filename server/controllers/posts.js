@@ -1,11 +1,18 @@
 import Post from "../models/Post.js";
 import User from "../models/User.js";
-
+import Theme from "../models/Theme.js";  
 /* CREATE */
+import Notification from "../models/Notification.js";
+
 export const createPost = async (req, res) => {
   try {
-    const { userId, description, picturePath } = req.body;
+    const { userId, description, picturePath, themes } = req.body;
     const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     const newPost = new Post({
       userId,
       firstName: user.firstName,
@@ -15,36 +22,38 @@ export const createPost = async (req, res) => {
       userPicturePath: user.picturePath,
       picturePath,
       likes: {},
+      themes,
       comments: [],
     });
-    await newPost.save();
 
-    const post = await Post.find();
-    res.status(201).json(post);
+    const savedPost = await newPost.save();
+
+    await Theme.updateMany(
+      { _id: { $in: themes } },
+      { $push: { posts: savedPost._id } }
+    );
+
+    // **Find users subscribed to the theme**
+    const usersToNotify = await User.find({ themes: { $in: themes } });
+
+    // **Create notifications**
+    const notifications = usersToNotify.map((subscriber) => ({
+      userId: subscriber._id,
+      message: `New post in theme you follow: ${description.substring(0, 50)}...`
+    }));
+
+    await Notification.insertMany(notifications);
+
+    res.status(201).json(savedPost);
   } catch (err) {
-    res.status(409).json({ message: err.message });
+    console.error("Error creating post:", err);
+    res.status(500).json({ message: err.message });
   }
 };
 
 /* READ */
-export const getFeedPosts = async (req, res) => {
-  try {
-    const post = await Post.find();
-    res.status(200).json(post);
-  } catch (err) {
-    res.status(404).json({ message: err.message });
-  }
-};
 
-export const getUserPosts = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const post = await Post.find({ userId });
-    res.status(200).json(post);
-  } catch (err) {
-    res.status(404).json({ message: err.message });
-  }
-};
+
 /* ADD COMMENT */
 export const addComment = async (req, res) => {
   try {
@@ -129,5 +138,28 @@ export const deletePost = async (req, res) => {
     res.status(200).json({ message: "Post deleted successfully" }); // Return success message
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+export const getFeedPosts = async (req, res) => {
+  try {
+    const posts = await Post.find()
+      .populate("themes", "name") // Populate the 'themes' field with the 'name' of the theme
+      .exec();
+    res.status(200).json(posts);
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
+};
+
+
+export const getUserPosts = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const post = await Post.find({ userId }).populate("themes", "name") // Populate the 'themes' field with the 'name' of the theme
+    .exec();
+    res.status(200).json(post);
+  } catch (err) {
+    res.status(404).json({ message: err.message });
   }
 };
