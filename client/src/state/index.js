@@ -22,26 +22,36 @@ export const authSlice = createSlice({
     setLogout: (state) => {
       state.user = null;
       state.token = null;
+      state.posts = [];
+      state.themes = [];
     },
     setFriends: (state, action) => {
       if (state.user) {
         state.user.friends = action.payload.friends;
       } else {
-        console.error("user friends non-existent :(");
+        console.error("Attempted to set friends, but no user is logged in.");
       }
     },
     setPosts: (state, action) => {
-      state.posts = action.payload.posts;
+      state.posts = Array.isArray(action.payload.posts) ? action.payload.posts : [];
     },
     setPost: (state, action) => {
-      const updatedPosts = state.posts.map((post) => {
-        if (post._id === action.payload.post._id) return action.payload.post;
-        return post;
-      });
-      state.posts = updatedPosts;
-    },
+      const updatedPost = action.payload.post;
+    
+      // Find the index of the post in the state
+      const postIndex = state.posts.findIndex((post) => post._id === updatedPost._id);
+    
+      if (postIndex !== -1) {
+        // Update existing post and trigger state change
+        state.posts[postIndex] = { ...updatedPost };
+      } else {
+        // If post is missing, add it
+        state.posts = [...state.posts, updatedPost];
+      }
+    }
+    ,
     setThemes: (state, action) => {
-      state.themes = action.payload.themes; // Update the themes state
+      state.themes = action.payload.themes; 
     },
   },
 });

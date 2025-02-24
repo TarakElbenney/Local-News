@@ -17,7 +17,11 @@ const FeedWidget = () => {
           },
         });
         const data = await response.json();
-        setPosts(data);
+
+        // Sort posts by latest first
+        const sortedPosts = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        setPosts(sortedPosts);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching posts:", error);
@@ -39,28 +43,25 @@ const FeedWidget = () => {
   return (
     <Box>
       <Typography variant="h4" mb={2}>
-        Global Feed
+        
       </Typography>
       {posts.length > 0 ? (
-        posts.map((post) => {
-          console.log("Themes for post:", post.themes); // Log themes here
-          return (
-            <PostWidget
-              key={post._id}
-              postId={post._id}
-              postUserId={post.userId}
-              firstName={post.firstName}
-              lastName={post.lastName}
-              description={post.description}
-              location={post.location}
-              picturePath={post.picturePath}
-              userPicturePath={post.userPicturePath}
-              likes={post.likes}
-              comments={post.comments}
-              themes={post.themes}
-            />
-          );
-        })
+        posts.map((post) => (
+          <PostWidget
+            key={post._id}
+            postId={post._id}
+            postUserId={post.userId}
+            firstName={post.firstName}
+            lastName={post.lastName}
+            description={post.description}
+            location={post.location}
+            picturePath={post.picturePath}
+            userPicturePath={post.userPicturePath}
+            likes={post.likes}
+            comments={post.comments}
+            themes={post.themes}
+          />
+        ))
       ) : (
         <Typography>No posts available.</Typography>
       )}

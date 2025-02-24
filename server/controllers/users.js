@@ -63,19 +63,19 @@ export const addRemoveFriend = async (req, res) => {
 };
 export const updateUserThemes = async (req, res) => {
   try {
-    const { themes } = req.body; // Get the new themes from the request body
-    const userId = req.user.id; // Get the authenticated user's ID
+    const { themes } = req.body; // Get new theme IDs
+    const userId = req.user.id; // Get authenticated user ID
 
     if (!Array.isArray(themes)) {
       return res.status(400).json({ message: "Themes should be an array of IDs." });
     }
 
-    // Update the user's themes by adding new themes without removing existing ones
+    // Overwrite the user's themes instead of adding new ones
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { $addToSet: { themes: { $each: themes } } }, // Add new themes, avoiding duplicates
-      { new: true } // Return the updated user document
-    ).populate("themes"); // Populate theme references if needed
+      { themes }, // Directly replace the themes array
+      { new: true }
+    ).populate("themes");
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found." });
@@ -89,3 +89,19 @@ export const updateUserThemes = async (req, res) => {
     res.status(500).json({ message: "An error occurred while updating themes.", error: err.message });
   }
 };
+
+export const getUserThemes = async (req, res) => {
+  try {
+    const userId = req.user.id; // Extract user ID from the authenticated token
+    const user = await User.findById(userId).populate("themes"); // Fetch user with themes
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ themes: user.themes });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching user themes", error: error.message });
+  }
+};
+

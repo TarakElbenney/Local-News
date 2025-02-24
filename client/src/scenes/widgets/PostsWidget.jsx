@@ -17,7 +17,11 @@ const PostsWidget = () => {
           },
         });
         const data = await response.json();
-        setPosts(data);
+
+        // Sort posts by latest first
+        const sortedPosts = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        setPosts(sortedPosts);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching posts:", error);
@@ -47,7 +51,7 @@ const PostsWidget = () => {
             key={post._id}
             postId={post._id}
             postUserId={post.userId}
-            firstName={post.firstName} // Ensure `firstName` is correctly passed
+            firstName={post.firstName}
             lastName={post.lastName}
             description={post.description}
             location={post.location}
